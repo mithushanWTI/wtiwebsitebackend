@@ -19,14 +19,26 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Mapping serviceType to respective agent emails
+const agentEmails = {
+  Inbound: "akif.z@worldtravelisland.com",
+  Outbound: "nimesha.d@worldtravelisland.com",
+  AirTickets: "abdullah.k@worldtravelisland.com",
+  VisaServices: "mohammed.d@worldtravelisland.com",
+  MiceTours: "mithushan0099@gmail.com",
+  CorporateTravel: "res@worldtravelisland.com",
+};
+
 // Route to handle form submission
 app.post("/send-email", async (req, res) => {
-  const { name, city, email, phone, whatsapp, destination, travelDate, people, vacationType, packageType } = req.body;
+  const { name, city, email, phone, whatsapp, destination, travelDate, people, serviceType, comments } = req.body;
 
-  const inboundAgent = "mithushan123456@gmail.com"; // Replace with actual inbound email
-  const outboundAgent = "mithushan0099@gmail.com"; // Replace with actual outbound email
+  // Get recipient email based on serviceType
+  const recipientEmail = agentEmails[serviceType];
 
-  const recipientEmail = packageType === "Inbound" ? inboundAgent : outboundAgent;
+  if (!recipientEmail) {
+    return res.status(400).json({ success: false, message: "Invalid package type" });
+  }
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -41,8 +53,8 @@ app.post("/send-email", async (req, res) => {
       Destination: ${destination}
       Travel Date: ${travelDate}
       No. of People: ${people}
-      Vacation Type: ${vacationType}
-      Package Type: ${packageType}
+      Service Type: ${serviceType}
+      Comments: ${comments}
     `,
   };
 
